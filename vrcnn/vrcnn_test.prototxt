@@ -1,0 +1,215 @@
+name: "DRRN_B1U9_20C128"
+input: "data"
+input_dim: 1
+input_dim: 1
+input_dim: 200
+input_dim: 200
+
+layer {
+  name: "conv1"
+  type: "Convolution"
+  bottom: "data"
+  top: "conv1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 0.1
+  }
+  convolution_param {
+    num_output: 64
+    kernel_size: 5
+    stride: 1
+    pad: 2
+    weight_filler {
+	type:"msra"
+	}
+	bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "relu1"
+  type: "ReLU"
+  bottom: "conv1"
+  top: "conv1"
+}
+layer {
+  name: "unit1/3x3"
+  type: "Convolution"
+  bottom: "conv1"
+  top: "unit1/3x3"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 0.1
+  }
+  convolution_param {
+    num_output: 32
+    kernel_size: 3
+	pad: 1
+	stride: 1
+    weight_filler {
+	type:"msra"
+	}
+	bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "relu_unit1/3x3"
+  type: "ReLU"
+  bottom: "unit1/3x3"
+  top: "unit1/3x3"
+}
+layer {
+  name: "unit1/5x5"
+  type: "Convolution"
+  bottom:"conv1"
+  top: "unit1/5x5"
+   param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 0.1
+  }
+  convolution_param {
+    num_output: 16
+    kernel_size: 5
+	pad:2
+	stride:1
+    weight_filler {
+	type:"msra"
+	}
+	bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "unit1_relu/5x5"
+  type: "ReLU"
+  bottom:"unit1/5x5"
+  top: "unit1/5x5"
+}
+layer {
+  name: "unit1/concat"
+  type: "Concat"
+  bottom: "unit1/5x5"
+  bottom: "unit1/3x3"
+  top: "unit1/concat"
+  concat_param {
+    axis: 1
+  }
+}
+
+#unit1 ends: 48 channels
+layer {
+  name: "unit2/3x3"
+  type: "Convolution"
+  bottom: "unit1/concat"
+  top: "unit2/3x3"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 0.1
+  }
+  convolution_param {
+    num_output: 16
+    kernel_size: 3
+	pad: 1
+	stride: 1
+    weight_filler {
+	type:"msra"
+	}
+	bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "relu_unit2/3x3"
+  type: "ReLU"
+  bottom: "unit2/3x3"
+  top: "unit2/3x3"
+}
+layer {
+  name: "unit2/1x1"
+  type: "Convolution"
+  bottom:"unit1/concat"
+  top: "unit2/1x1"
+   param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 0.1
+  }
+  convolution_param {
+    num_output: 32
+    kernel_size: 1
+	pad:0
+	stride:1
+    weight_filler {
+	type:"msra"
+	}
+	bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "unit2_relu/1x1"
+  type: "ReLU"
+  bottom:"unit2/1x1"
+  top: "unit2/1x1"
+}
+layer {
+  name: "unit2/concat"
+  type: "Concat"
+  bottom: "unit2/1x1"
+  bottom: "unit2/3x3"
+  top: "unit2/concat"
+}
+#unit2 ends: 48 channels
+layer {
+  name: "conv2"
+  type: "Convolution"
+  bottom: "unit2/concat"
+  top: "conv2"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 0.1
+  }
+  convolution_param {
+    num_output: 1
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+	type:"msra"
+	}
+	bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer
+{
+    name:"res"
+    type: "Eltwise"
+    bottom:"conv2"
+    bottom:"data"
+    top:"res"
+
+}
